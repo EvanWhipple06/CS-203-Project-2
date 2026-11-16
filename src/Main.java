@@ -5,7 +5,6 @@ import java.io.*;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Hello, World!");
         Scanner sc = new Scanner(System.in);
 
         String activeFile = "test";
@@ -26,10 +25,10 @@ public class Main {
         mainLoop : while (true) {
             System.out.printf("""
                     \nActive file: %s
-                    1) load/create file
-                    2) apply sort
-                    3) apply search
-                    4) quit
+                    1) Load/create file
+                    2) Apply sort
+                    3) Apply search
+                    4) Quit
                     """, activeFile.isEmpty()? "[None selected]": activeFile);
 
             // validate user input
@@ -51,13 +50,12 @@ public class Main {
                 // apply sort
                 case 2:
                     // validate that active file exists
-                    System.out.println("2");
+                    applySort(sc, activeFile);
                     break;
                 // apply search
                 case 3:
                     // validate that active file exists
-
-                    System.out.println("3");
+                    applySearch(sc, activeFile);
                     break;
                 // quit
                 case 4:
@@ -259,6 +257,100 @@ public class Main {
                     System.out.println("Invalid value inputted");
                     continue;
             }
+        }
+    }
+
+    void applySort(Scanner sc, String activeFile) {
+        int input = 0;
+
+        // used so that if invalid input is given, it just repeats this section of code
+        mainLoop : while (true) {
+            System.out.printf("""
+                    \nActive file: %s
+                    1) Selection sort
+                    2) Bubble sort
+                    3) Insertion sort
+                    4) Merge sort
+                    5) Quick sort
+                    6) Heap sort
+                    7) Run all
+                    8) Return to Main Menu
+                    """, activeFile.isEmpty() ? "[None selected]" : activeFile);
+
+            // validate user input
+            try {
+                input = sc.nextInt();
+            } catch (Exception ex) {
+                System.out.println("Non-numeric input detected. Please try again.");
+                sc.nextLine();
+            }
+
+            // switch case that aligns with provided GUI
+            switch (input) {
+                case 1:
+                    System.out.println("Run selection sort");
+                    break;
+                case 2:
+                    System.out.println("Run bubble sort");
+                    break;
+                case 3:
+                    System.out.println("Run insertion sort");
+                    break;
+                case 4:
+                    System.out.println("Run merge sort");
+                    break;
+                case 5:
+                    System.out.println("Run quick sort");
+                    break;
+                case 6:
+                    System.out.println("Run heap sort");
+                    break;
+                case 7:
+                    System.out.println("Run all");
+                    break;
+                case 8:
+                    System.out.println("Returning to main menu");
+                    break mainLoop;
+                default:
+                    System.out.println("Invalid value inputted");
+                    continue;            }
+        }
+    }
+
+    void applySearch(Scanner sc, String activeFile) {
+        int input = 0;
+
+        // used so that if invalid input is given, it just repeats this section of code
+        mainLoop : while (true) {
+            System.out.printf("""
+                    \nActive file: %s
+                    1) Selection search
+                    2) Binary search
+                    3) Return to Main Menu
+                    """, activeFile.isEmpty() ? "[None selected]" : activeFile);
+
+            // validate user input
+            try {
+                input = sc.nextInt();
+            } catch (Exception ex) {
+                System.out.println("Non-numeric input detected. Please try again.");
+                sc.nextLine();
+            }
+
+            // switch case that aligns with provided GUI
+            switch (input) {
+                case 1:
+                    System.out.println("Run selection search");
+                    break;
+                case 2:
+                    System.out.println("Run binary search");
+                    break;
+                case 3:
+                    System.out.println("Returning to main menu");
+                    break mainLoop;
+                default:
+                    System.out.println("Invalid value inputted");
+                    continue;            }
         }
     }
 }
