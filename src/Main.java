@@ -308,9 +308,6 @@ public class Main {
                     System.out.println("Run merge sort");
                     break;
                 case 5:
-                    // TODO delete this
-                    System.out.println("Run quick sort");
-
                     // create file object and check that file exists
                     File file = new File(activeFile);
                     if(!file.exists()) {
@@ -349,13 +346,12 @@ public class Main {
                     System.out.printf("Basic operations: %s\n" +
                             "Elapsed time: %s ms\n", basicOperation, elapsedTime);
 
-                    // TODO need to write the elapsed time, basic operations, and sorted array into a renamed new file
                     // write sorted array into file, write time elapsed and basic operation count and save new file, report new file's name too
                     try {
-                        file = new File(tempFile + ".txt");
+                        file = new File(activeFile.substring(0, activeFile.length()-4) + "-quicksort.txt");
                         if (file.createNewFile()) {
                             System.out.printf("File %s was successfully created\n", file.getName());
-                            activeFile = tempFile + ".txt";
+                            activeFile = file.getName();
                         } else {
                             System.out.printf("Creation of file %s failed %s\n", file.getName(), file.exists()? "file already exists": "");
                             continue;
@@ -364,22 +360,17 @@ public class Main {
                         System.out.println("Error: " + ex);
                         continue;
                     }
-                    // if file creation fails then continue to effectively restart interaction
-
-                    System.out.println("\nGenerating n numbers, what is the desired n?");
-
-                    // get user input for n
-                    input = sc.nextInt();
 
                     try {
                         FileWriter myWriter = new FileWriter(file.getName());
-                        Random r = new Random();
 
-                        for(int i = 0; i < input; i++) {
+                        myWriter.write("Basic operations: " + basicOperation + "\n" + "Elapsed time: " + elapsedTime +" ms\n");
+
+                        for(int i = 0; i < arr.length; i++) {
                             // write n random numbers between 0 and n-1, comma separated
                             if(i != 0) {myWriter.write(",");}
 
-                            myWriter.write(String.valueOf(r.nextInt(input)));
+                            myWriter.write(String.valueOf(arr[i]));
                         }
 
                         // close file writer
@@ -388,7 +379,7 @@ public class Main {
                         System.out.printf("Failed to write to file %s\n", file.getName());
                     }
 
-                    break;
+                    break mainLoop;
                 case 6:
                     System.out.println("Run heap sort");
                     break;
