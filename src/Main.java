@@ -321,19 +321,8 @@ public class Main {
                     break;
                 case 5:
                     int[] arr;
-
                     try {
-                        // read file and split into an array (input is expected to be text file of comma separated numbers)
-                        String content = Files.readString(Path.of(activeFile));
-                        String[] values = content.split(",");
-
-                        // initialize arr to prepare for mapping values to arr
-                        arr = new int[values.length];
-
-                        // map the String integers into int integers
-                        for (int i = 0; i < values.length; i++) {
-                            arr[i] = Integer.parseInt(values[i].trim());
-                        }
+                        arr = readArrayFromFile(activeFile);
                     } catch (Exception ex) {
                         // if it fails report the error
                         System.out.println("Error reading file into array");
@@ -367,6 +356,24 @@ public class Main {
                     System.out.println("Invalid value inputted");
                     continue;            }
         }
+    }
+
+    int[] readArrayFromFile(String activeFile) throws IOException {
+        int[] arr;
+
+        // read file and split into an array (input is expected to be text file of comma separated numbers)
+        String content = Files.readString(Path.of(activeFile));
+        String[] values = content.split(",");
+
+        // initialize arr to prepare for mapping values to arr
+        arr = new int[values.length];
+
+        // map the String integers into int integers
+        for (int i = 0; i < values.length; i++) {
+            arr[i] = Integer.parseInt(values[i].trim());
+        }
+
+        return arr;
     }
 
     void logSort(int[] arr, String activeFile, double elapsedTime, String sortType) {
@@ -449,7 +456,7 @@ public class Main {
         }
     }
 
-    void mergesort() {
+    void mergesort(int[] arr, int left, int right) {
 
     }
 
