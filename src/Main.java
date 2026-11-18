@@ -305,6 +305,11 @@ public class Main {
                 sc.nextLine();
             }
 
+            // initialize variables for the switch case
+            int[] arr;
+            long startTime, endTime;
+            double elapsedTime;
+
             // switch case that aligns with provided GUI
             switch (input) {
                 case 1:
@@ -317,10 +322,6 @@ public class Main {
                     System.out.println("Run insertion sort");
                     break;
                 case 4:
-                    System.out.println("Run merge sort");
-                    break;
-                case 5:
-                    int[] arr;
                     try {
                         arr = readArrayFromFile(activeFile);
                     } catch (Exception ex) {
@@ -330,13 +331,36 @@ public class Main {
                     }
 
                     // track the time elapsed
-                    long startTime = System.nanoTime();
+                    startTime = System.nanoTime();
+
+                    arr = mergesort(arr, 0, arr.length-1);
+
+                    // track basic operations and elapsed time
+                    endTime = System.nanoTime();
+                    elapsedTime = (endTime - startTime) / 1_000_000.0;
+                    System.out.printf("Basic operations: %s\n" +
+                            "Elapsed time: %s ms\n", basicOperation, elapsedTime);
+
+                    logSort(arr, activeFile, elapsedTime, "merge sort");
+
+                    break mainLoop;
+                case 5:
+                    try {
+                        arr = readArrayFromFile(activeFile);
+                    } catch (Exception ex) {
+                        // if it fails report the error
+                        System.out.println("Error reading file into array");
+                        break;
+                    }
+
+                    // track the time elapsed
+                    startTime = System.nanoTime();
 
                     quicksort(arr, 0, arr.length-1);
 
                     // track basic operations and elapsed time
-                    long endTime = System.nanoTime();
-                    double elapsedTime = (endTime - startTime) / 1_000_000.0;
+                    endTime = System.nanoTime();
+                    elapsedTime = (endTime - startTime) / 1_000_000.0;
                     System.out.printf("Basic operations: %s\n" +
                             "Elapsed time: %s ms\n", basicOperation, elapsedTime);
 
@@ -358,6 +382,7 @@ public class Main {
         }
     }
 
+    // reads file of comma separated integers from file into an array, which it returns
     int[] readArrayFromFile(String activeFile) throws IOException {
         int[] arr;
 
@@ -376,6 +401,7 @@ public class Main {
         return arr;
     }
 
+    // saves a file of sorted comma separated integers and a file containing how long in ms it took to run the operation and how many basic operations
     void logSort(int[] arr, String activeFile, double elapsedTime, String sortType) {
         File file;
         File file2;
@@ -456,8 +482,49 @@ public class Main {
         }
     }
 
-    void mergesort(int[] arr, int left, int right) {
 
+    int[] mergesort(int[] arr, int left, int right) {
+        // if only one element return
+        if (right - left <= 1) {return new int[] {arr[left]};}
+
+        int midpoint = ((right - left) / 2) + left;
+
+        // divide the array into subarrays and recursively call
+        int[] leftHalf = mergesort(arr, left, midpoint);
+        int[] rightHalf = mergesort(arr, midpoint, right);
+        int[] whole = new int[leftHalf.length + rightHalf.length];
+
+        // merge the arrays
+        int i = 0, j = 0, k = 0;
+        while(i < leftHalf.length && j < rightHalf.length) {
+            if (leftHalf[i] <= rightHalf[j]) {
+                whole[k] = leftHalf[i];
+                i++;
+            } else {
+                whole[k] = rightHalf[j];
+                j++;
+            }
+            k++;
+            basicOperation++;
+        }
+
+        // copy remaining elements of leftHalf into whole
+        while (i < leftHalf.length) {
+            whole[k] = leftHalf[i];
+            i++;
+            k++;
+            basicOperation++;
+        }
+
+        // copy remaining elements of rightHalf into whole
+        while (j < rightHalf.length) {
+            whole[k] = rightHalf[j];
+            j++;
+            k++;
+            basicOperation++;
+        }
+
+        return whole;
     }
 
     // standard lomuto partition code
