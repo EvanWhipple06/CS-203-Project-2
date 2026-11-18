@@ -25,6 +25,7 @@ public class Main {
         int input = 0;
         Scanner sc = new Scanner(System.in);
         String activeFile = "";
+        File file;
 
         // named while loop, this contains the main GUI code, in a loop so desired behavior for invalid inputs happens (repeats the code)
         mainLoop : while (true) {
@@ -54,14 +55,24 @@ public class Main {
                     break;
                 // apply sort
                 case 2:
-                    // TODO
-                    // validate that active file exists
+                    // create file object and check that file exists
+                    file = new File(activeFile);
+                    if(!file.exists()) {
+                        System.out.printf("Error: File %s does not exist\n", file.getName());
+                        continue;
+                    }
+
                     applySort(sc, activeFile);
                     break;
                 // apply search
                 case 3:
-                    // TODO
-                    // validate that active file exists
+                    // create file object and check that file exists
+                    file = new File(activeFile);
+                    if(!file.exists()) {
+                        System.out.printf("Error: File %s does not exist\n", file.getName());
+                        continue;
+                    }
+
                     applySearch(sc, activeFile);
                     break;
                 // quit
@@ -270,6 +281,7 @@ public class Main {
     // the gui for the sort menu
     void applySort(Scanner sc, String activeFile) {
         int input = 0;
+        basicOperation = 0;
 
         // used so that if invalid input is given, it just repeats this section of code
         mainLoop : while (true) {
@@ -308,13 +320,6 @@ public class Main {
                     System.out.println("Run merge sort");
                     break;
                 case 5:
-                    // create file object and check that file exists
-                    File file = new File(activeFile);
-                    if(!file.exists()) {
-                        System.out.printf("Error: File %s does not exist\n", file.getName());
-                        break;
-                    }
-
                     int[] arr;
 
                     try {
@@ -346,38 +351,7 @@ public class Main {
                     System.out.printf("Basic operations: %s\n" +
                             "Elapsed time: %s ms\n", basicOperation, elapsedTime);
 
-                    // write sorted array into file, write time elapsed and basic operation count and save new file, report new file's name too
-                    try {
-                        file = new File(activeFile.substring(0, activeFile.length()-4) + "-quicksort.txt");
-                        if (file.createNewFile()) {
-                            System.out.printf("File %s was successfully created\n", file.getName());
-                            activeFile = file.getName();
-                        } else {
-                            System.out.printf("Creation of file %s failed %s\n", file.getName(), file.exists()? "file already exists": "");
-                            continue;
-                        }
-                    } catch(IOException ex) {
-                        System.out.println("Error: " + ex);
-                        continue;
-                    }
-
-                    try {
-                        FileWriter myWriter = new FileWriter(file.getName());
-
-                        myWriter.write("Basic operations: " + basicOperation + "\n" + "Elapsed time: " + elapsedTime +" ms\n");
-
-                        for(int i = 0; i < arr.length; i++) {
-                            // write n random numbers between 0 and n-1, comma separated
-                            if(i != 0) {myWriter.write(",");}
-
-                            myWriter.write(String.valueOf(arr[i]));
-                        }
-
-                        // close file writer
-                        myWriter.close();
-                    } catch (IOException e) {
-                        System.out.printf("Failed to write to file %s\n", file.getName());
-                    }
+                    logSort(arr, activeFile, elapsedTime, "quicksort");
 
                     break mainLoop;
                 case 6:
@@ -395,9 +369,51 @@ public class Main {
         }
     }
 
+    void logSort(int[] arr, String activeFile, double elapsedTime, String sortType) {
+        File file;
+        File file2;
+
+        // write sorted array into file, write time elapsed and basic operation count and save new file, report new file's name too
+        try {
+            file = new File(activeFile.substring(0, activeFile.length()-4) + "-" + sortType + ".txt");
+            file2 = new File(activeFile.substring(0, activeFile.length()-4) + "-" + sortType + "-log.txt");
+            if (file.createNewFile()) {
+                System.out.printf("File %s and %s were successfully created\n", file.getName(), file2.getName());
+                activeFile = file.getName();
+            } else {
+                System.out.printf("Creation of file %s or %s failed %s\n", file.getName(), file2.getName(), file.exists() || file2.exists()? " one file already exists": "");
+                return;
+            }
+        } catch(IOException ex) {
+            System.out.println("Error: " + ex);
+            return;
+        }
+
+        try {
+            FileWriter myWriter = new FileWriter(file.getName());
+            FileWriter myWriter2 = new FileWriter(file2.getName());
+
+            myWriter2.write("Basic operations: " + basicOperation + "\n" + "Elapsed time: " + elapsedTime +" ms\n");
+
+            for(int i = 0; i < arr.length; i++) {
+                // write n random numbers between 0 and n-1, comma separated
+                if(i != 0) {myWriter.write(",");}
+
+                myWriter.write(String.valueOf(arr[i]));
+            }
+
+            // close file writer
+            myWriter.close();
+            myWriter2.close();
+        } catch (IOException e) {
+            System.out.printf("Failed to write to file %s\n", file.getName());
+        }
+    }
+
     // the gui for the search menu
     void applySearch(Scanner sc, String activeFile) {
         int input = 0;
+        basicOperation = 0;
 
         // used so that if invalid input is given, it just repeats this section of code
         mainLoop : while (true) {
@@ -431,6 +447,10 @@ public class Main {
                     System.out.println("Invalid value inputted");
                     continue;            }
         }
+    }
+
+    void mergesort() {
+
     }
 
     // standard lomuto partition code
