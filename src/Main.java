@@ -73,7 +73,16 @@ public class Main {
                         continue;
                     }
 
-                    applySearch(sc, activeFile);
+                    // ask if the file is sorted
+                    System.out.println("Is the provided file sorted?");
+                    boolean sorted = false;
+                    try {
+                        if (sc.nextLine().substring(0, 1).equalsIgnoreCase("y")) {
+                            sorted = true;
+                        }
+                    } catch (Exception ex) {}
+
+                    applySearch(sc, activeFile, sorted);
                     break;
                 // quit
                 case 4:
@@ -283,6 +292,11 @@ public class Main {
         int input = 0;
         basicOperation = 0;
 
+        // initialize variables for the switch case
+        int[] arr;
+        long startTime, endTime;
+        double elapsedTime;
+
         // used so that if invalid input is given, it just repeats this section of code
         mainLoop : while (true) {
             System.out.printf("""
@@ -304,11 +318,6 @@ public class Main {
                 System.out.println("Non-numeric input detected. Please try again.");
                 sc.nextLine();
             }
-
-            // initialize variables for the switch case
-            int[] arr;
-            long startTime, endTime;
-            double elapsedTime;
 
             // switch case that aligns with provided GUI
             switch (input) {
@@ -333,7 +342,7 @@ public class Main {
                     // track the time elapsed
                     startTime = System.nanoTime();
 
-                    arr = mergesort(arr, 0, arr.length-1);
+                    arr = mergesort(arr, 0, arr.length);
 
                     // track basic operations and elapsed time
                     endTime = System.nanoTime();
@@ -341,7 +350,7 @@ public class Main {
                     System.out.printf("Basic operations: %s\n" +
                             "Elapsed time: %s ms\n", basicOperation, elapsedTime);
 
-                    logSort(arr, activeFile, elapsedTime, "merge sort");
+                    log(arr, activeFile, elapsedTime, "merge sort", true, 0, 0);
 
                     break mainLoop;
                 case 5:
@@ -364,7 +373,7 @@ public class Main {
                     System.out.printf("Basic operations: %s\n" +
                             "Elapsed time: %s ms\n", basicOperation, elapsedTime);
 
-                    logSort(arr, activeFile, elapsedTime, "quicksort");
+                    log(arr, activeFile, elapsedTime, "quicksort",true, 0, 0);
 
                     break mainLoop;
                 case 6:
@@ -402,19 +411,51 @@ public class Main {
     }
 
     // saves a file of sorted comma separated integers and a file containing how long in ms it took to run the operation and how many basic operations
-    void logSort(int[] arr, String activeFile, double elapsedTime, String sortType) {
+    void log(int[] arr, String activeFile, double elapsedTime, String sortType, boolean sort, int value, int index) {
         File file;
         File file2;
 
-        // write sorted array into file, write time elapsed and basic operation count and save new file, report new file's name too
+        if (sort) {
+            // write sorted array into file, write time elapsed and basic operation count and save new file, report new file's name too
+            try {
+                file = new File(activeFile.substring(0, activeFile.length() - 4) + "-" + sortType + ".txt");
+                if (file.createNewFile()) {
+                    System.out.printf("File %s was successfully created\n", file.getName());
+                    activeFile = file.getName();
+                } else {
+                    System.out.printf("Creation of file %s failed %s%s\n", file.getName(), file.getName(), file.exists() ? " already exists" : "");
+                    return;
+                }
+            } catch (IOException ex) {
+                System.out.println("Error: " + ex);
+                return;
+            }
+
+            try {
+                FileWriter myWriter = new FileWriter(file.getName());
+
+                for (int i = 0; i < arr.length; i++) {
+                    // write n random numbers between 0 and n-1, comma separated
+                    if (i != 0) {
+                        myWriter.write(",");
+                    }
+
+                    myWriter.write(String.valueOf(arr[i]));
+                }
+
+                // close file writer
+                myWriter.close();
+            } catch (IOException e) {
+                System.out.printf("Failed to write to file %s\n", file.getName());
+            }
+        }
+
         try {
-            file = new File(activeFile.substring(0, activeFile.length()-4) + "-" + sortType + ".txt");
             file2 = new File(activeFile.substring(0, activeFile.length()-4) + "-" + sortType + "-log.txt");
-            if (file.createNewFile()) {
-                System.out.printf("File %s and %s were successfully created\n", file.getName(), file2.getName());
-                activeFile = file.getName();
+            if (file2.createNewFile()) {
+                System.out.printf("File %s was successfully created\n", file2.getName());
             } else {
-                System.out.printf("Creation of file %s or %s failed %s\n", file.getName(), file2.getName(), file.exists() || file2.exists()? " one file already exists": "");
+                System.out.printf("Creation of file %s failed %s%s\n", file2.getName(), file2.getName(), file2.exists()? " already exists": "");
                 return;
             }
         } catch(IOException ex) {
@@ -423,30 +464,29 @@ public class Main {
         }
 
         try {
-            FileWriter myWriter = new FileWriter(file.getName());
             FileWriter myWriter2 = new FileWriter(file2.getName());
-
             myWriter2.write("Basic operations: " + basicOperation + "\n" + "Elapsed time: " + elapsedTime +" ms\n");
-
-            for(int i = 0; i < arr.length; i++) {
-                // write n random numbers between 0 and n-1, comma separated
-                if(i != 0) {myWriter.write(",");}
-
-                myWriter.write(String.valueOf(arr[i]));
+            if (!sort) {
+                myWriter2.write("Value " + value + " was found at index " + index);
             }
 
             // close file writer
-            myWriter.close();
             myWriter2.close();
         } catch (IOException e) {
-            System.out.printf("Failed to write to file %s\n", file.getName());
+            System.out.printf("Failed to write to file %s\n", file2.getName());
         }
     }
 
     // the gui for the search menu
-    void applySearch(Scanner sc, String activeFile) {
+    void applySearch(Scanner sc, String activeFile, boolean sorted) {
         int input = 0;
         basicOperation = 0;
+
+        // initialize variables for the switch case
+        int result;
+        int[] arr;
+        long startTime, endTime;
+        double elapsedTime;
 
         // used so that if invalid input is given, it just repeats this section of code
         mainLoop : while (true) {
@@ -468,11 +508,73 @@ public class Main {
             // switch case that aligns with provided GUI
             switch (input) {
                 case 1:
-                    System.out.println("Run selection search");
-                    break;
+                    try {
+                        arr = readArrayFromFile(activeFile);
+                    } catch (Exception ex) {
+                        // if it fails report the error
+                        System.out.println("Error reading file into array");
+                        break;
+                    }
+
+                    System.out.println("Enter desired value to search for: ");
+                    // get user input for desired value
+                    try {
+                        input = sc.nextInt();
+                    } catch (Exception ex) {
+                        System.out.println("Non-numeric input detected. Please try again.");
+                        sc.nextLine();
+                        break;
+                    }
+
+                    // track the time elapsed
+                    startTime = System.nanoTime();
+
+                    result = selectionSearch(arr, input, sorted);
+
+                    // track basic operations and elapsed time
+                    endTime = System.nanoTime();
+                    elapsedTime = (endTime - startTime) / 1_000_000.0;
+                    System.out.printf("Basic operations: %s\n" +
+                            "Elapsed time: %s ms\n" +
+                            "Value %d was found at index %d\n", basicOperation, elapsedTime, input, result);
+
+                    log(arr, activeFile, elapsedTime, "selection search", false, input, result);
+                    
+                    break mainLoop;
                 case 2:
-                    System.out.println("Run binary search");
-                    break;
+                    try {
+                        arr = readArrayFromFile(activeFile);
+                    } catch (Exception ex) {
+                        // if it fails report the error
+                        System.out.println("Error reading file into array");
+                        break;
+                    }
+
+                    System.out.println("Enter desired value to search for: ");
+                    // get user input for desired value
+                    try {
+                        input = sc.nextInt();
+                    } catch (Exception ex) {
+                        System.out.println("Non-numeric input detected. Please try again.");
+                        sc.nextLine();
+                        break;
+                    }
+
+                    // track the time elapsed
+                    startTime = System.nanoTime();
+
+                    result = binarySearch(arr, input, 0, arr.length);
+
+                    // track basic operations and elapsed time
+                    endTime = System.nanoTime();
+                    elapsedTime = (endTime - startTime) / 1_000_000.0;
+                    System.out.printf("Basic operations: %s\n" +
+                            "Elapsed time: %s ms\n" +
+                            "Value %d was found at index %d\n", basicOperation, elapsedTime, input, result);
+
+                    log(arr, activeFile, elapsedTime, "binary search", false, input, result);
+
+                    break mainLoop;
                 case 3:
                     System.out.println("Returning to main menu");
                     break mainLoop;
@@ -567,5 +669,38 @@ public class Main {
         // recursive call to itself
         quicksort(array, left, partition - 1);
         quicksort(array, partition + 1, right);
+    }
+
+    // standard selection search
+    int selectionSearch(int[] arr, int value, boolean sorted) {
+        // iterate through array and if the value at index i = value return the index, if sorted and arr[i] > value stop early. If not found return -1
+        for(int i = 0; i < arr.length; i++) {
+            ++basicOperation;
+            if(sorted && arr[i] > value) {
+                return -1;
+            } else if(arr[i] == value) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // standard binary search
+    int binarySearch(int[] arr, int value, int left, int right) {
+        ++basicOperation;
+        int middleIndex = (right + left)/2;
+        // base case
+        if (left >= right) {
+            return -1;
+        }
+
+        // if value = arr[index] return index, if value > arr[index] check the upper half of the array, otherwise check lower half
+        if(arr[middleIndex] == value) {
+            return middleIndex;
+        } else if(arr[middleIndex] < value) {
+            return binarySearch(arr, value, middleIndex + 1, right);
+        } else {
+            return binarySearch(arr, value, left, middleIndex);
+        }
     }
 }
