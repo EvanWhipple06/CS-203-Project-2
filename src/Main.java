@@ -12,12 +12,8 @@ public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        String activeFile = "test";
-
         Main main = new Main();
         main.printGui();
-
-        System.out.println(activeFile);
     }
 
     void printGui() {
